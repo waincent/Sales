@@ -1,0 +1,775 @@
+/**
+ * 导航
+ *
+ * @author waincent
+ */
+entity Navigation {
+	/** 导航名称 */
+	name String required,
+    /** 排序 */
+    position Integer
+}
+
+/**
+ * 导航子项
+ *
+ * @author waincent
+ */
+entity NavigationItem {
+	/** 名字 */
+    name String required,
+    /** 图标 */
+    icon String,
+    /** 字体颜色 */
+    color String,
+    /** 背景颜色 */
+    backgroundColor String,
+    /** 地址 */
+    url String required,
+    /** 可用状态 */
+    availableStatus AvailableStatus required,
+    /** 排序 */
+    position Integer
+}
+
+relationship OneToMany {
+    Navigation{item} to NavigationItem
+}
+
+// 性别
+enum Gender {
+	UNKNOWN, MALE, FEMALE
+}
+
+// 可用状态
+enum AvailableStatus {
+	AVAILABLE, DISABLED
+}
+
+/**
+ * 客户信息
+ *
+ * @author waincent
+ */
+entity Customer {
+	/** 姓名 */
+	name String required,
+    /** 性别 */
+	gender Gender,
+    /** 出生日期 */
+	birthday Instant,
+    /** 身份证号 */
+    cardNumber String,
+    /** 宅电 */
+    telephone String,
+    /** 手机号码 */
+    phone String,
+    /** 手机号码2 */
+    phoneSecond String,
+    /** 可用状态 */
+    availableStatus AvailableStatus
+}
+
+/**
+ * 投资渠道
+ *
+ * A股、B股、港股、双融、新三板、天天增、公募、私募、理财、其他
+ * @author waincent
+ */
+entity InvestmentChannel{
+	/** 投资渠道名称 */
+	name String required minlength(2),
+    /** 可用状态 */
+    availableStatus AvailableStatus
+}
+
+/**
+ * 资金账户
+ *
+ * @author waincent
+ */
+entity FundAccount {
+	/** 账号编码 */
+	accountNum String required,
+    /** 开户时间 */
+    activationTime Instant,
+    /** 可用状态 */
+    availableStatus AvailableStatus
+}
+
+relationship OneToMany {
+	/** 资金账户 */
+	Customer{account} to FundAccount
+}
+
+relationship OneToOne {
+	/** 投资渠道 */
+	FundAccount{channel} to InvestmentChannel
+}
+
+/**
+ * 报备制佣金管理
+ *
+ * @author waincent
+ */
+entity CommissionReport {
+	/** 原佣金率 */
+	beforeCommission Double required,
+    /** 申请佣金率 */
+    applyCommission Double,
+    /** 修改时间 */
+    modifyTime Instant,
+    /** 修改人电脑 **/
+    computer String,
+    /** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+	/** 修改人 */
+	CommissionReport{operator} to User,
+    /** 客户信息 **/
+    CommissionReport{customer} to Customer,
+    /** 资金账号 **/
+    CommissionReport{account} to FundAccount
+}
+
+/**
+ * 审批制佣金管理
+ *
+ * @author waincent
+ */
+entity CommissionApprove {
+	/** 原佣金率 */
+	beforeCommission Double required,
+    /** 申请佣金率 */
+    applyCommission Double,
+    /** 修改时间 */
+    modifyTime Instant,
+    /** 修改人电脑 **/
+    computer String,
+    /** 复核时间 */
+    modifyTime Instant,
+    /** 审批状态 */
+    approvalStatus ApprovalStatus,
+    /** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+	/** 申请人 */
+	CommissionApprove{proposer} to User,
+    /** 复核人 */
+    CommissionApprove{reviewer} to User,
+    /** 客户信息 **/
+    CommissionApprove{customer} to Customer,
+    /** 资金账号 **/
+    CommissionApprove{account} to FundAccount
+}
+
+/**
+ * 天天增登记
+ *
+ * @author waincent
+ */
+entity IncreaseRegistration {
+	/** 登记时间 */
+	registrationTime Instant required,
+	/** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+    /** 客户信息 */
+	IncreaseRegistration{customer} to User,
+	/** 资金账号 **/
+    IncreaseRegistration{account} to FundAccount
+}
+
+/**
+ * 沪港通登记
+ *
+ * @author waincent
+ */
+entity HKStocksRegistration {
+	/** 登记时间 */
+	registrationTime Instant required,
+	/** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+    /** 客户信息 */
+	HKStocksRegistration{customer} to User,
+	/** 资金账号 **/
+    HKStocksRegistration{account} to FundAccount
+}
+
+/**
+ * 签约情况
+ *
+ * @author waincent
+ */
+entity SignedCase {
+	/** 情况名称 */
+	name String,
+    /** 可用状态 */
+    availableStatus AvailableStatus
+}
+
+/**
+ * 客户签约情况表
+ *
+ * @author waincent
+ */
+entity Signed {
+    /** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+	/** 签约情况 */
+	Signed{signedCase} to SignedCase,
+    /** 客户姓名 */
+    Signed{customer} to Customer
+}
+
+/**
+ * 产品类别
+ *
+ * @author waincent
+ */
+entity ProductType {
+	/** 产品名称 */
+	name String required,
+    /** 可用状态 */
+    availableStatus AvailableStatus
+}
+
+/**
+ * 风险等级
+ *
+ * @author waincent
+ */
+//entity RiskRegister {
+	/** 风险名称 */
+//	name String required,
+    /** 可用状态 */
+//    availableStatus AvailableStatus
+//}
+
+/**
+ * 产品信息
+ *
+ * @author waincent
+ */
+entity Product {
+	/** 产品名称 */
+	name String,
+    /** 产品代码 */
+    code String,
+    /** 风险等级 */
+    risk String
+    /** 产品成立日 */
+    createTime Instant,
+    /** 产品发售日 */
+    salasTime Instant,
+    /** 产品到期日 */
+    expireTime Instant,
+    /** 资金到账日 */
+    intoAccountTime Instant,
+    /** 是否滚存 */
+    isAutomatic Boolean,
+    /** 首次购买起点 */
+    firstBuyPoint Integer,
+    /** 追加基数 */
+    additionalBase Integer,
+    /** 是否到期 */
+    status Boolean
+}
+
+//relationship OneToOne {
+    /** 风险等级 */
+//    Product{risk} to RiskRegister
+//}
+
+enum Publish {
+	FIRST_PUBLISH, CONTINUE_PUBLISH
+}
+
+// SUBSCRIPTION 认购， SUBSCRIBE 申购
+enum PurchaseBehavior {
+	SUBSCRIPTION, SUBSCRIBE
+}
+
+/**
+ * 资管产品更新
+ *
+ * @author waincent
+ */
+entity ProductRenewal {
+	/** 首发/持续 */
+    publish Publish required,
+    /** 认购/申购 */
+    purchase PurchaseBehavior required,
+    /** 产品参与（开放）终止日 */
+    productFinishTime Instant,
+    /** 产品成立日（起息日） */
+    productCreateTime Instant,
+    /** 产品到期日 */
+    productExpireTime Instant,
+    /** 资金回账日 */
+    recoveryTime Instant,
+    /** 实际计息时间（天） */
+    interestPeriod Integer,
+    /** 销售起点（万元） */
+    salesOrigin Integer,
+    /** 上海交易系统销售规模（亿） */
+    shanghaiScale Integer,
+    /** 北京交易系统销售规模（亿） */
+    beijingScale Integer,
+    /** 营业部销售费率 */
+    salesRate Double,
+    /** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+	/** 产品 */
+	ProductRenewal{product} to Product
+}
+
+/**
+ * 客户购买产品登记
+ *
+ * @author waincent
+ */
+entity ProductRegistration {
+	/** 购买日期 */
+    purchaseTime Instant required,
+    /** 计息天数 */
+    bearingDays Integer,
+    /** 购买金额 */
+    purchaseAmount Integer,
+    /** 产品到期日 */
+    productExpireTime Instant,
+    /** 资金可取日 */
+    encashmentTime Instant,
+    /** 利率 */
+    interestRate Double,
+    /** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+	/** 产品 */
+	ProductRegistration{product} to Product
+}
+
+/**
+ * 客户服务
+ *
+ * @author waincent
+ */
+entity Consultant {
+	/** 联系内容 */
+	contactContent String required,
+    /** 备注 */
+    comments String,
+}
+
+/**
+ * 服务类型
+ * 标准化服务、理财产品、天天增、双融
+ *
+ * @author waincent
+ */
+entity ConsultantType {
+	/** 服务名称 */
+	name String required,
+    /** 可用状态 */
+    availableStatus AvailableStatus
+}
+
+/**
+ * 沟通方式
+ *
+ * @author waincent
+ */
+entity ContactWay {
+	/** 沟通方式名称 */
+	name String required,
+    /** 可用状态 */
+    availableStatus AvailableStatus
+}
+
+/**
+ * 客户计划类型
+ *
+ * @author waincent
+ */
+entity CustomerPlan {
+	/** 计划名称 */
+	name String required,
+    /** 可用状态 */
+    availableStatus AvailableStatus
+}
+
+/**
+ * 客户反馈类型
+ *
+ * @author waincent
+ */
+entity CustomerFeedback{
+	/** 反馈名称 */
+	name String required,
+    /** 可用状态 */
+    availableStatus AvailableStatus
+}
+
+/**
+ * 服务记录
+ *
+ * @author waincent
+ */
+entity ConsultantRecord {
+	/** 联系时间 */
+	contactTime Instant required,
+    /** 联系内容 */
+    content String required,
+
+}
+
+relationship OneToOne {
+	/** 客户信息 */
+	Consultant{customer} to Customer
+}
+
+relationship OneToMany{
+	/** 服务记录 */
+	Consultant{record} to ConsultantRecord
+}
+
+relationship OneToOne {
+	/** 联系方式 */
+	ConsultantRecord{contactWay} to ContactWay,
+	/** 客户反馈 */
+    ConsultantRecord{feedback} to CustomerFeedback,
+    /** 客户计划 */
+	ConsultantRecord{plan} to CustomerPlan,
+    /** 客户经理 */
+    ConsultantRecord{manager} to User
+}
+
+/**
+ * 双融客户（存量）服务台账
+ *
+ * @author waincent
+ */
+entity SecuritiesConsultant {
+	/** 余额 */
+	balance Double required,
+    /** 个股1 */
+    stock1 String,
+    /** 个股2 */
+    stock2 String,
+    /** 个股3 */
+    stock3 String,
+    /** 客户需求 */
+    customerDemand String,
+    /** 佣金 */
+    commission Double,
+    /** 息费 */
+    interest Double,
+    /** 交易量 */
+    volume Double
+}
+
+relationship OneToOne {
+	SecuritiesConsultant{customer} to Customer
+}
+
+relationship OneToMany{
+	SecuritiesConsultant{record} to ConsultantRecord
+}
+
+/**
+ * 双融增量服务台账
+ *
+ * @author waincent
+ */
+entity SecuritiesIncrement {
+	/** 计划开发时间 */
+    developTime Instant required,
+    /** 第一次划转担保时间 */
+    firstGuaranteeTime Instant,
+    /** 第一笔融资交易时间 */
+    firstRecordTime Instant,
+    /** 未完期完成情况说明 */
+    unfinishedComment String,
+    /** 后续工作跟进计划 */
+    followPlan String
+}
+
+relationship OneToOne {
+	SecuritiesIncrement{customer} to Customer
+}
+
+// 完成状态
+enum CompletionStatus {
+	COMPLETION, UNFINISHED, PROGRESS
+}
+
+// 客户反馈
+enum CallbackStatus {
+	SUCCESS, FAILURE, UNDONE
+}
+
+/**
+ * 双融进度服务台账
+ *
+ * @author waincent
+ */
+entity SecuritiesSchedule {
+	/** 登记时间 */
+    registrationTime Instant required,
+    /** 回访结果 */
+    callbackStatus CallbackStatus,
+    /** 回访失败原因 */
+    failureCause String,
+    /** 合同签署、额度审批状态 */
+    signStatus CompletionStatus,
+    /** 登记时间 */
+    signTime Instant,
+    /** 股东开户状态 */
+    openAccountStatus CompletionStatus,
+    /** 开户时间 */
+    openAccountTime Instant,
+    /** 登记时间 */
+    approvalTime Instant,
+    /** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+	/** 客户信息 **/
+    CommissionManagement{customer} to Customer,
+    /** 资金账号 **/
+    CommissionManagement{account} to FundAccount
+}
+
+/**
+ * 营业部活动 card展示
+ *
+ * @author waincent
+ */
+entity Activity {
+	/** 活动主题 */
+	topic String required,
+    /** 活动摘要 */
+    summary String required,
+    /** 活动地址 */
+    address String required,
+    /** 活动时间 */
+    scheduleTime Instant,
+    /** 活动详情 */
+    detatil String,
+    /** 限制人数 */
+    limitPerson Integer,
+    /** 报名人数 */
+    willnum Integer,
+    /** 出席人数 */
+    attendance Integer,
+    /** 推荐指数 */
+    recommendationRate Integer
+}
+
+/**
+ * 活动参与名单
+ *
+ * @author waincent
+ */
+entity ActivityAttendanceSheet {
+	/**是否到场 */
+    isAttendance Boolean
+}
+
+relationship OneToMany {
+	/** 参会人员记录 */
+	Activity{attendance} to ActivityAttendanceSheet
+}
+
+relationship OneToOne {
+	/** 服务人员 */
+	ActivityAttendanceSheet{user} to User,
+    /** 客户 */
+    ActivityAttendanceSheet{customer} to Customer
+}
+
+/**
+ * 部门
+ *
+ * @author waincent
+ */
+entity Department {
+	name String required
+}
+
+/**
+ * 员工
+ *
+ * @author waincent
+ */
+entity Employee {
+	phone String,
+    phone2 String,
+    /**
+     * 宅电
+     */
+    telephone String,
+    /**
+     * 分机号
+     */
+    extensionNumber String,
+    /**
+     * 直线号码
+     */
+    linearNumber String,
+    /**
+     * 工号
+     */
+    jobNumber String,
+	hireDate Instant,
+	resignedDate Instant
+}
+
+/**
+ * 关联账号
+ */
+relationship OneToOne {
+    Employee{userId} to User
+}
+
+/**
+ * 职位
+ *
+ * @author waincent
+ */
+entity Job {
+	jobTitle String required
+}
+
+relationship OneToOne {
+	/** 工作岗位 */
+	Employee{job} to Job
+}
+
+// defining multiple OneToMany relationships with comments
+relationship OneToMany {
+	Department{employee} to User
+}
+
+// 上下级关系
+relationship ManyToOne {
+	User{manager} to User
+}
+
+// 审核状态
+// Waiting：等待审核
+// Review：审核中
+// Rejected：被拒
+// Approve：审核通过
+enum ApprovalStatus {
+	WAITING, REVIEW, REJECTED, APPROVE
+}
+
+/**
+ * 请假类型
+ *
+ * @author waincent
+ */
+entity LeaveType {
+	name String required
+}
+
+/**
+ * 请假
+ *
+ * @author waincent
+ */
+entity LeaveInfo {
+	/** 请假事由 */
+	cause String required,
+    /** 申请时间 */
+	filingDate LocalDate,
+    /** 开始时间 */
+    startDateTime Instant,
+    /** 结束时间 */
+    endDateTime Instant,
+    /** 请假天数 */
+    duration Integer,
+    /** 审批时间 */
+    approvalTime Instant,
+    /** 审批状态 */
+    approvalStatus ApprovalStatus,
+    /** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+	/** 请假类型 */
+	LeaveInfo{type} to LeaveType,
+    /** 申请人 */
+	LeaveInfo{proposer} to User,
+    /** 审批人 */
+	LeaveInfo{approver} to User
+}
+
+/**
+ * 加班
+ *
+ * @author waincent
+ */
+entity ExtraWork {
+	/** 加班事由 */
+    cause String required,
+    /** 申请日期 */
+    filingDate LocalDate,
+    /** 开始日期 */
+    startTime Instant,
+    /** 结束时间 */
+    endTime Instant,
+    /** 加班时长 */
+    overtime Integer,
+    /** 审批时间 */
+    approvalTime Instant,
+    /** 审批状态 */
+    approvalStatus ApprovalStatus,
+    /** 备注 */
+    comments String
+}
+
+relationship OneToOne {
+	/** 申请人 */
+	ExtraWork{proposer} to User,
+    /** 审批人 */
+	ExtraWork{approver} to User
+}
+
+// Set pagination options
+//paginate JobHistory, Employee with infinite-scroll
+
+// 添加过滤
+filter *
+
+// Pageable
+paginate * with pagination
+
+dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl
+// except Employee, Job
+
+// Set an angular suffix
+// angularSuffix * with ''
